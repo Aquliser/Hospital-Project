@@ -1,42 +1,125 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Logo from './logo';
 import { CgProfile } from "react-icons/cg";
 import { FaPlusSquare } from "react-icons/fa";
 import { TbBuildingBank } from "react-icons/tb";
 import { IoIosCall } from "react-icons/io";
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-export const Register = () => {
-  const [password, setPassword] = useState('');
-  const [personal_id, setPersonal_id] = useState('');
-  const [email, setEmail] = useState('');
-  const [hospital_name, setHospital_name] = useState('');
-  const [hospital_id, setHospital_id] = useState('');
-  const [province, setProvince] = useState('');
-  const [district, setDistrict] = useState('');
-  const [prename, setPrename] = useState('');
-  const [name, setName] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [sex, setSex] = useState('');
-  const [position, setProsition] = useState('');
-  const [level, setLevel] = useState('');
-  const [birthday, setBirthday] = useState('');
-  const [agency, setAgency] = useState('');
-  const [phone_number, setPhone_number] = useState('');
-  const [phone_number_agency, setPhone_number_agency] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const navigate = useNavigate();
+  type Province = {
+    province_id: string;
+    name_th: string;
+  }
+  
+  type District = {
+    name_th: string;
+  }
+  
+  export const Register = () => {
+    const [personal_id, setPersonal_id] = useState('');
+    const [email, setEmail] = useState('');
+    const [hospital_name, setHospital_name] = useState('');
+    const [hospital_id, setHospital_id] = useState('');
+    
+    const [provinces, setProvinces] = useState<Province[]>([]);
+    const [selectedProvince, setSelectedProvince] = useState('')
+    
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    
+    const [prename, setPrename] = useState('');
+    const [name, setName] = useState('');
+    const [lastname, setLastname] = useState('');
+    const [sex, setSex] = useState('');
+    const [position, setProsition] = useState('');
+    const [level, setLevel] = useState('');
+    const [birthday, setBirthday] = useState('');
+    const [agency, setAgency] = useState('');
+    const [phone_number, setPhone_number] = useState('');
+    const [phone_number_agency, setPhone_number_agency] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const navigate = useNavigate();
+  
+    useEffect(() => {
+      const fetchProvinces = async () => {
+        try {
+          const response = await axios.get("http://localhost:3001/Province");
+          setProvinces(response.data);
+        } catch (error) {
+          console.error('Error fetching provinces:', error);
+        }
+      };
+    
+      fetchProvinces();
+    }, []);
+    
+    useEffect(() => {
+      const fetchDistricts = async (province_id:string) => {
+        try {
+          const response = await axios.get(`http://localhost:3001/Province/thaiAmphures/${province_id}`);
+          setDistricts(response.data);
+        } catch (error) {
+          console.error('Error fetching districts:', error);
+        }
+      };
+    
+      if (selectedProvince) {
+        fetchDistricts(selectedProvince);
+      }
+    }, [selectedProvince]);
+    
+    const handleProvinceChange = (province_id:string) => {
+      setSelectedProvince(province_id);
+    };
 
-  const handleRegister = (e: { preventDefault: () => void; }) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (
+      !email || !password || !confirmPassword || !personal_id ||
+      !hospital_name || !hospital_id || !selectedProvince || !selectedDistrict ||
+      !prename || !name || !lastname || !sex || !position || !level ||
+      !birthday || !agency || !phone_number || !phone_number_agency ||
+      !confirmPassword
+    ) {
+      alert('Please fill in all fields.');
+      return;
+    }
     if (password !== confirmPassword) {
       alert('Passwords do not match.');
       return;
     }
 
+    try {
+      await axios.post('http://localhost:3001/register', {    
+          personal_id,
+          email,
+          hospital_name,
+          hospital_id,
+          selectedProvince,
+          selectedDistrict,
+          prename,
+          name,
+          lastname,
+          sex,
+          birthday,
+          position,
+          level,
+          agency,
+          phone_number,
+          phone_number_agency,
+          password
+      });
+
     alert('Registration successful! You can now login.');
-    navigate('/Register');
-  };
+            navigate('/Register'); // นำผู้ใช้ไปยังหน้า Login
+        } catch (error) {
+            console.error('Error registering user:', error);
+            alert('Error registering user. Please try again later.');
+        }
+    };
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -107,28 +190,32 @@ export const Register = () => {
               <div className="mb-4 drop-shadow-lg flex-auto w-full md:w-40 md:ml-4 lg:w-48">
                 <label className="text-white">จังหวัด</label>
                 <select
-                  className="bg-gray-50 text-gray-900 sm:text-sm rounded-lg  block w-full p-2.5"
-                  id="province"
-                  value={province}
-                  onChange={(e) => setProvince(e.target.value)}
-                >
-                  <option value="">เลือกจังหวัด</option>
-                  <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
-                  <option value="นนทบุรี">นนทบุรี</option>
-                </select>
+                    className="bg-gray-50 text-gray-900 sm:text-sm rounded-lg  block w-full p-2.5"
+                    id="province"
+                    value={selectedProvince}
+                    onChange={(e) => handleProvinceChange(e.target.value)}>
+                    <option value="">เลือกจังหวัด</option>
+                      {provinces.map((province) => (
+                      <option key={province.province_id} value={province.province_id}>
+                      {province.name_th}
+                    </option>
+                    ))}
+                  </select>
               </div>
               <div className="mb-4 drop-shadow-lg flex-auto w-full md:w-40 md:ml-4 lg:w-48">
                 <label className="text-white">เขต</label>
                 <select
-                  className="bg-gray-50 text-gray-900 sm:text-sm rounded-lg  block w-full p-2.5"
+                  className="bg-gray-50 text-gray-900 sm:text-sm rounded-lg block w-full p-2.5"
                   id="district"
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
-                >
+                  value={selectedDistrict}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+              >
                   <option value="">เลือกเขต</option>
-                  <option value="เขตพระนคร">เขตพระนคร</option>
-                  <option value="เขตดุสิต">เขตดุสิต</option>
-                  {/* เพิ่มต่อไปตามจำนวนเขตที่ต้องการ */}
+                  {districts.map((district, index: number) => (
+                    <option key={index} value={district.name_th}>
+                      {district.name_th}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -188,7 +275,8 @@ export const Register = () => {
                   id="birthday"
                   type="date"
                   value={birthday}
-                  onChange={(e) => setBirthday(e.target.value)} />
+                  onChange={(e) => setBirthday(e.target.value)} 
+                  />
               </div>
               <div className="mb-4 drop-shadow-lg flex-auto w-36 md:ml-4">
                 <label className="text-white">ตำแหน่ง</label>
@@ -267,7 +355,7 @@ export const Register = () => {
             <div className="flex flex-wrap">
               <div className="drop-shadow-lg flex-auto w-32">
                 <button
-                  onClick={handleRegister}
+                  type="submit"
                   className="bg-red-200 border border-gray-500 text-blue-700 font-bold sm:text-sm rounded-lg block p-2.5 "
                 >CREATE
                 </button>

@@ -8,7 +8,7 @@ const options: ApexOptions = {
     position: 'top',
     horizontalAlign: 'left',
   },
-  colors: ['#3C50E0', '#80CAEE'],
+  colors: ['#1C1C1C', '#A8C5DA'],
   chart: {
     fontFamily: 'Satoshi, sans-serif',
     height: 335,
@@ -16,12 +16,11 @@ const options: ApexOptions = {
     dropShadow: {
       enabled: true,
       color: '#623CEA14',
-      top: 10,
-      blur: 4,
+      top: 2,
+      blur: 1,
       left: 0,
       opacity: 0.1,
     },
-
     toolbar: {
       show: false,
     },
@@ -45,41 +44,24 @@ const options: ApexOptions = {
     },
   ],
   stroke: {
-    width: [2, 2],
-    curve: 'straight',
+    width: [2, 1],
+    curve: 'smooth',
+    dashArray: [0, 8]
   },
-  // labels: {
-  //   show: false,
-  //   position: "top",
-  // },
   grid: {
     xaxis: {
       lines: {
-        show: true,
+        show: false,
       },
     },
     yaxis: {
       lines: {
-        show: true,
+        show: false,
       },
     },
   },
   dataLabels: {
     enabled: false,
-  },
-  markers: {
-    size: 4,
-    colors: '#fff',
-    strokeColors: ['#3056D3', '#80CAEE'],
-    strokeWidth: 3,
-    strokeOpacity: 0.9,
-    strokeDashArray: 0,
-    fillOpacity: 1,
-    discrete: [],
-    hover: {
-      size: undefined,
-      sizeOffset: 5,
-    },
   },
   xaxis: {
     type: 'category',
@@ -111,7 +93,6 @@ const options: ApexOptions = {
       },
     },
     min: 0,
-    max: 100,
   },
 };
 
@@ -126,13 +107,12 @@ const linechart: React.FC = () => {
   const [state, setState] = useState<ChartOneState>({
     series: [
       {
-        name: 'Product One',
-        data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45],
+        name: 'ปีปัจจุบัน',
+        data: [23000, 11000, 22000, 27000, 13000, 22000, 37000, 21000, 44000, 22000, 30000, 45000],
       },
-
       {
-        name: 'Product Two',
-        data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51],
+        name: 'ปีก่อนหน้า',
+        data: [30000, 25000, 36000, 30000, 45000, 35000, 64000, 52000, 59000, 36000, 39000, 51000],
       },
     ],
   });
@@ -145,9 +125,10 @@ const linechart: React.FC = () => {
   handleReset;
 
   return (
-    <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
+    <div className="col-span-12 rounded-md bg-gray-100/[.50] px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8 drop-shadow-lg">
       <div className="flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap">
         <div className="flex w-full flex-wrap gap-3 sm:gap-5">
+          <h2>รายงานผู้รับบริการต่อปี</h2>
           <div className="flex min-w-47.5">
             <span className="mt-1 mr-2 flex h-4 w-full max-w-4 items-center justify-center rounded-full border border-primary">
               <span className="block h-2.5 w-full max-w-2.5 rounded-full bg-primary"></span>
@@ -163,19 +144,6 @@ const linechart: React.FC = () => {
             <div className="w-full">
               <p className="font-semibold text-secondary">ปีปัจจุบัน</p>
             </div>
-          </div>
-        </div>
-        <div className="flex w-full max-w-45 justify-end">
-          <div className="inline-flex items-center rounded-md bg-whiter p-1.5 dark:bg-meta-4">
-            <button className="rounded bg-white py-1 px-3 text-xs font-medium text-black shadow-card hover:bg-white hover:shadow-card dark:bg-boxdark dark:text-white dark:hover:bg-boxdark">
-              Day
-            </button>
-            <button className="rounded py-1 px-3 text-xs font-medium text-black hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark">
-              Week
-            </button>
-            <button className="rounded py-1 px-3 text-xs font-medium text-black hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark">
-              Month
-            </button>
           </div>
         </div>
       </div>
